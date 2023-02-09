@@ -16,35 +16,39 @@ export async function getBooking(req: AuthenticatedRequest, res: Response) {
   }
 }
 
-export async function createBooking(req: Request, res: Response) {
-  // Regra de negócio: Apenas usuários com ticket presencial, com hospedagem e pago podem fazer reservas.
+export async function createBooking(req: AuthenticatedRequest, res: Response) {
+  const { userId } = req;
+  const { roomId } = req.body;
 
-  const body = {
-    roomId: Number,
-  };
-
-  //Sucesso: Deve retornar status code 200 com bookingId
-  /*
-//Error:    
-    `roomId` não existente: Deve retornar status code 404. 
-    `roomId` sem vaga: Deve retornar status code 403.
-    Fora da regra de negócio: Deve retornar status code 403.
-*/
+  try {
+    const bookingId = await bookingService.createBooking(Number(userId), Number(roomId));
+    return res.status(httpStatus.OK).send({ bookingId });
+  } catch (error) {
+    if (error.name === 'NotFoundError') {
+      return res.sendStatus(httpStatus.NOT_FOUND);
+    }
+    if (error.name === 'cannotListHotelsError') {
+      return res.sendStatus(httpStatus.FORBIDDEN);
+    }
+    return res.sendStatus(httpStatus.FORBIDDEN);
+  }
 }
 
-export async function updateBooking(req: Request, res: Response) {
-  // A troca só pode ser efetuada para usuários que possuem reservas.
-  // A troca só pode ser efetuada apenas para quartos livres.
-
+export async function updateBooking(req: AuthenticatedRequest, res: Response) {
   const bookingId = req.params;
+  const { userId } = req;
+  const { roomId } = req.body;
 
-  const body = {
-    roomId: Number,
-  };
-
-  //Sucesso: Deve retornar status code 200 com `bookingId`
-  //Error:
-  // `roomId` não existente: Deve retornar status code 404.
-  // `roomId` sem vaga: Deve retornar status code 403.
-  // Fora da regra de negócio: Deve retornar status code 403.
+  try {
+    const newBookingId = await bookingService.updateBooking(Number(bookingId), Number(userId), Number(roomId));
+    return res.status(httpStatus.OK).send({ newBookingId });
+  } catch (error) {
+    if (error.name === 'NotFoundError') {
+      return res.sendStatus(httpStatus.NOT_FOUND);
+    }
+    if (error.name === 'cannotListHotelsError') {
+      return res.sendStatus(httpStatus.FORBIDDEN);
+    }
+    return res.sendStatus(httpStatus.FORBIDDEN);
+  }
 }
