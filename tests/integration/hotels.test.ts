@@ -156,6 +156,8 @@ describe("GET /hotels/:hotelId", () => {
       const payment = await createPayment(ticket.id, ticketType.price);
       //Hoteis no banco
 
+
+      
       const response = await server.get("/hotels/1").set("Authorization", `Bearer ${token}`);
 
       expect(response.status).toEqual(httpStatus.PAYMENT_REQUIRED);

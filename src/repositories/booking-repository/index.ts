@@ -1,5 +1,4 @@
 import { prisma } from '@/config';
-import { type } from 'os';
 
 async function findFirst(userId: number) {
   return prisma.booking.findFirst({
@@ -30,7 +29,7 @@ async function createBooking(userId: number, roomId: number) {
 }
 
 async function updateBooking(bookingId: number, roomId: number) {
-  prisma.booking.update({
+  return prisma.booking.update({
     where: { id: bookingId },
     data: { roomId },
   });

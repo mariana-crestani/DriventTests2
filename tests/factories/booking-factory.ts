@@ -1,6 +1,6 @@
 import { prisma } from "@/config";
 
-export async function createBookings(roomId: number, userId: number) {
+export async function createBooking(roomId: number, userId: number) {
   return prisma.booking.create({
     data: {
       roomId,
