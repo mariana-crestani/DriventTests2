@@ -142,6 +142,15 @@ describe('POST /booking', () => {
       expect(response.status).toEqual(httpStatus.FORBIDDEN);
     });
 
+    it('should respond with status 404 when user has no enrollment ', async () => {
+      const user = await createUser();
+      const token = await generateValidToken(user);
+      const ticketType = await createTicketTypeRemote();
+      const body = { roomId: 1 };
+      const response = await server.post('/booking').set('Authorization', `Bearer ${token}`).send(body);
+      expect(response.status).toEqual(httpStatus.NOT_FOUND);
+    });
+
     it('should respond with status 403 when hotel not included', async () => {
       const user = await createUser();
       const token = await generateValidToken(user);
@@ -224,7 +233,6 @@ describe('POST /booking', () => {
     });
   });
 });
-
 
 describe('PUT /booking/:bookingId', () => {
   it('should respond with status 401 if no token is given', async () => {

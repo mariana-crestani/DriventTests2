@@ -11,3 +11,4 @@ export async function createBooking(roomId: number, userId: number) {
     },
   });
 }
+
