@@ -7,6 +7,7 @@ import supertest from 'supertest';
 import {
   createEnrollmentWithAddress,
   createFullRoomWithHotelId,
+  createFullRoomWithHotelId2,
   createHotel,
   createPayment,
   createRoomWithHotelId,
@@ -303,6 +304,34 @@ describe('PUT /booking/:bookingId', () => {
 
       const body = { roomId: room.id };
       const response = await server.put('/booking/1').set('Authorization', `Bearer ${token}`).send(body);
+
+      expect(response.status).toEqual(httpStatus.FORBIDDEN);
+    });
+
+    it('should respond with status 403 when room is full 2', async () => {
+      const user = await createUser();
+      const token = await generateValidToken(user);
+      const enrollment = await createEnrollmentWithAddress(user);
+      const ticketType = await createTicketTypeWithHotel();
+      const ticket = await createTicket(enrollment.id, ticketType.id, TicketStatus.PAID);
+      const payment = await createPayment(ticket.id, ticketType.price);
+
+      const user2 = await createUser();
+      const token2 = await generateValidToken(user2);
+      const enrollment2 = await createEnrollmentWithAddress(user2);
+      const ticketType2 = await createTicketTypeWithHotel();
+      const ticket2 = await createTicket(enrollment2.id, ticketType2.id, TicketStatus.PAID);
+      const payment2 = await createPayment(ticket2.id, ticketType2.price);
+
+      const hotel = await createHotel();
+      const room1 = await createFullRoomWithHotelId2(hotel.id);
+      const room2 = await createFullRoomWithHotelId2(hotel.id);
+      const booking = await createBooking(room1.id, user.id);
+      const booking2 = await createBooking(room2.id, user2.id);
+
+      const body = { roomId: room2.id };
+
+      const response = await server.put(`/booking/${booking.id}`).set('Authorization', `Bearer ${token}`).send(body);
 
       expect(response.status).toEqual(httpStatus.FORBIDDEN);
     });
